@@ -1,11 +1,14 @@
 import matplotlib.pyplot as plt
+import numpy as np
 
-x = [1, 2, 3, 4, 5]
-y = [10, 15, 13, 18, 16]
+print("Matplotlib 기본 그래프 그리기")
 
-plt.plot(x, y, marker='o', color='blue')
-plt.title('Sample Line Plot')
-plt.xlabel('X-axis')
-plt.ylabel('Y-axis')
-plt.grid(True)
+x = np.linspace(0, 10, 100)
+y = np.sin(x)
+
+plt.plot(x, y)
+plt.title("사인 함수 그래프")
+plt.xlabel("x 값")
+plt.ylabel("y = sin(x)")
+plt.grid()
 plt.show()

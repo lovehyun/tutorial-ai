@@ -1,16 +1,21 @@
+# 1_python_basics/2_pandas_intro.py
 import pandas as pd
 
-# 딕셔너리 → 데이터프레임
+print("Pandas Series 생성")
+s = pd.Series([10, 20, 30, 40], index=['a', 'b', 'c', 'd'])
+print(s)
+
+print("\nPandas DataFrame 생성")
 data = {
-    'Name': ['Alice', 'Bob', 'Charlie'],
-    'Age': [25, 30, 35],
-    'Score': [90, 85, 88]
+    '이름': ['철수', '영희', '민수'],
+    '점수': [85, 90, 95]
 }
 df = pd.DataFrame(data)
-
-print("데이터프레임 미리보기:")
 print(df)
 
-# 통계 요약
-print("\n평균 점수:", df['Score'].mean())
-print("최대 나이:", df['Age'].max())
+print("\n데이터 조회")
+print(f"첫 번째 학생: {df.iloc[0]}")
+print(f"'점수' 컬럼:\n{df['점수']}")
+
+print("\n데이터 요약")
+print(df.describe())
