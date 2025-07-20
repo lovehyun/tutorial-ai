@@ -4,6 +4,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import roc_curve, auc, classification_report
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, GRU, Dense, Dropout
+from sklearn.preprocessing import StandardScaler
 
 def load_data(npz_path, binary=True):
     data = np.load(npz_path)
@@ -11,6 +12,14 @@ def load_data(npz_path, binary=True):
     y = data["y"]
     if binary:
         y = (y != 0).astype(int)
+        
+    # 정규화
+    n_samples, seq_len, n_features = X.shape
+    X_reshaped = X.reshape(-1, n_features)
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X_reshaped)
+    X = X_scaled.reshape(n_samples, seq_len, n_features)
+
     return X, y
 
 def train_model(X, y, model_fn, label, epochs=10):

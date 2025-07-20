@@ -14,7 +14,7 @@ from imblearn.over_sampling import SMOTE
 
 # 데이터 로드 및 불균형 시뮬레이션
 df = pd.read_csv("network_multiclass.csv")
-normal = df[df['label'] == 0].sample(n=600, random_state=42)
+normal = df[df['label'] == 0].sample(n=400, random_state=42)
 dos = df[df['label'] == 1].sample(n=80, random_state=42)
 probe = df[df['label'] == 2].sample(n=40, random_state=42)
 imbalanced_df = pd.concat([normal, dos, probe]).sample(frac=1, random_state=42).reset_index(drop=True)
@@ -52,10 +52,13 @@ def plot_multiclass_roc(y_test_bin, probs, title):
     roc_auc = {}
     n_classes = y_test_bin.shape[1]
 
+    print(f"\n{title} - AUC Scores by Class:")
     for i in range(n_classes):
         fpr[i], tpr[i], _ = roc_curve(y_test_bin[:, i], probs[:, i])
         roc_auc[i] = auc(fpr[i], tpr[i])
+        print(f"  Class {i}: AUC = {roc_auc[i]:.4f}")
 
+    # 시각화
     plt.figure(figsize=(8, 6))
     for i in range(n_classes):
         plt.plot(fpr[i], tpr[i], label=f"Class {i} (AUC = {roc_auc[i]:.2f})")
@@ -71,5 +74,5 @@ def plot_multiclass_roc(y_test_bin, probs, title):
 print("ROC Curve - SMOTE 미적용")
 plot_multiclass_roc(y_test_bin, probs_no_smote, "ROC Curve (No SMOTE)")
 
-print("ROC Curve - SMOTE 적용")
+print("\n---\nROC Curve - SMOTE 적용")
 plot_multiclass_roc(y_test_bin, probs_smote, "ROC Curve (SMOTE Applied)")

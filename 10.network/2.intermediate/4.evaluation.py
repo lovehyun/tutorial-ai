@@ -9,7 +9,6 @@ from sklearn.preprocessing import StandardScaler, label_binarize
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import confusion_matrix, classification_report, roc_curve, auc
 from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import LabelBinarizer
 
 # 데이터 로드
 df = pd.read_csv("network_multiclass.csv")

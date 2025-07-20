@@ -2,9 +2,8 @@
 
 # SMOTE (Synthetic Minority Over-sampling Technique)는
 # 소수 클래스(공격 데이터)를 가짜 샘플로 증가시켜서 학습 데이터의 균형을 맞춰주는 방법입니다.
-# 항목	내용
-# 방식	소수 클래스 데이터를 기반으로 근처 점을 보간해 가짜 데이터를 생성
-# 결과	데이터가 더 균형 있게 되어, 모델이 소수 클래스도 잘 학습함
+# - 방식: 소수 클래스 데이터를 기반으로 근처 점을 보간해 가짜 데이터를 생성
+# - 결과: 데이터가 더 균형 있게 되어, 모델이 소수 클래스도 잘 학습함
 #
 # 불균형 전:
 # - 정상: 950개  
@@ -16,6 +15,16 @@
 # - Probe: 950개 (SMOTE로 증강)
 # => 데이터 수를 맞춰줌으로써 학습에 공정한 기회를 부여합니다.
 
+# SMOTE는 어떻게 동작하나요?
+# 핵심 아이디어
+# - 소수 클래스의 샘플들을 바탕으로, 인접한 점들 사이에 “가짜 데이터”를 보간(Interpolation)하여 생성한다.
+#
+# 작동 원리 순서
+# - 소수 클래스 샘플 중 하나 A를 선택
+# - A에서 k개의 최근접 이웃(k-NN)을 계산
+# - 그 중 무작위로 하나 B를 선택
+# - A와 B 사이의 직선상 임의의 점 C를 생성
+
 # 3_model_training_smote.py
 
 import pandas as pd
@@ -23,15 +32,19 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import classification_report, confusion_matrix
-from sklearn.pipeline import make_pipeline
 from imblearn.over_sampling import SMOTE
 from collections import Counter
 
 # 데이터 로드
 df = pd.read_csv("network_multiclass.csv")
 
+# 실제 개수 확인
+print(Counter(df['label']))
+
 # 일부만 선택하여 불균형 시뮬레이션
-normal = df[df['label'] == 0].sample(n=600, random_state=42)
+# normal = df[df['label'] == 0].sample(n=500, random_state=42)
+normal = df[df['label'] == 0].sample( # 자동으로 가능한 최대 수를 사용 (지금은 정상은 400개뿐)
+    n=min(600, len(df[df['label'] == 0])), random_state=42)
 dos = df[df['label'] == 1].sample(n=80, random_state=42)
 probe = df[df['label'] == 2].sample(n=40, random_state=42)
 imbalanced_df = pd.concat([normal, dos, probe]).sample(frac=1, random_state=42).reset_index(drop=True)
@@ -49,11 +62,17 @@ scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
-# SMOTE 적용
+# SMOTE 적용 (SMOTE는 훈련 데이터(X_train)에 대해서만 적용)
 smote = SMOTE(random_state=42)
 X_resampled, y_resampled = smote.fit_resample(X_train_scaled, y_train)
 
 print("클래스 분포 (SMOTE 후):", Counter(y_resampled))
+
+# | 클래스 | SMOTE 전 | SMOTE 후     |
+# | ------ | ------- | ------------ |
+# | 0      | 320     | 320 (변화 없음) |
+# | 1      | 64      | 320 (증강)    |
+# | 2      | 32      | 320 (증강)    |
 
 # 모델 학습
 model = RandomForestClassifier(n_estimators=100, random_state=42)

@@ -6,6 +6,21 @@ import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.decomposition import PCA
 
+import matplotlib
+import platform
+
+# 한글 폰트 설정
+if platform.system() == 'Windows':
+    matplotlib.rc('font', family='Malgun Gothic')
+elif platform.system() == 'Darwin':  # macOS
+    matplotlib.rc('font', family='AppleGothic')
+else:  # Linux (NanumGothic 설치 필요)
+    matplotlib.rc('font', family='NanumGothic')
+
+# 마이너스 깨짐 방지
+matplotlib.rcParams['axes.unicode_minus'] = False
+
+
 # CSV 데이터 로드
 df = pd.read_csv("network_multiclass.csv")
 

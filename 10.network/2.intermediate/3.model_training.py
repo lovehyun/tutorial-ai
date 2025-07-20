@@ -45,3 +45,24 @@ if has_xgboost:
     print("XGBoost 결과")
     print(confusion_matrix(y_test, xgb_preds))
     print(classification_report(y_test, xgb_preds))
+
+# XGBoost 결과
+# [[78  0  2]
+#  [ 0 80  0]
+#  [ 0  0 80]]
+# 클래스 0에서 2개 샘플이 클래스 2로 잘못 분류됨
+
+# 오분류 샘플 보기
+# misclassified_xgb = X_test[y_test != xgb_preds]
+# print("XGBoost 오분류 샘플:")
+# print(misclassified_xgb)
+
+# 오분류 샘플 및 예측 결과
+# mismatch = X_test[y_test != xgb_preds].copy()
+# mismatch['true_label'] = y_test[y_test != xgb_preds]
+# mismatch['predicted_label'] = xgb_preds[y_test != xgb_preds]
+# print(mismatch)
+
+#       duration  packet_size   src_bytes   dst_bytes  true_label  predicted_label
+# 273  13.444771   185.333744  607.478727  595.487808           0                2
+# 263  19.375904   220.981864  658.548739  609.474982           0                2

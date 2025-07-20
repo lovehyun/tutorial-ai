@@ -3,7 +3,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from collections import Counter
 
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
@@ -14,7 +13,7 @@ from imblearn.over_sampling import SMOTE
 
 # 데이터 로드 및 불균형 시뮬레이션
 df = pd.read_csv("network_multiclass.csv")
-normal = df[df['label'] == 0].sample(n=600, random_state=42)
+normal = df[df['label'] == 0].sample(n=400, random_state=42)
 dos = df[df['label'] == 1].sample(n=80, random_state=42)
 probe = df[df['label'] == 2].sample(n=40, random_state=42)
 imbalanced_df = pd.concat([normal, dos, probe]).sample(frac=1, random_state=42).reset_index(drop=True)
@@ -45,10 +44,18 @@ pred_smote = model_smote.predict(X_test_scaled)
 
 # --------- 평가 함수 ---------
 def evaluate_model(y_true, y_pred, title):
+    # Confusion Matrix
     cm = confusion_matrix(y_true, y_pred)
+
+    # Textual classification report 출력
+    print(f"\n{title} - Classification Report:")
+    print(classification_report(y_true, y_pred))
+    
+    # Report DataFrame for heatmap
     report = classification_report(y_true, y_pred, output_dict=True)
     report_df = pd.DataFrame(report).transpose()
 
+    # Confusion Matrix Heatmap
     plt.figure(figsize=(5, 4))
     sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=[0,1,2], yticklabels=[0,1,2])
     plt.title(f"{title} - Confusion Matrix")
@@ -56,6 +63,7 @@ def evaluate_model(y_true, y_pred, title):
     plt.ylabel("True")
     plt.show()
 
+    # Precision / Recall / F1-score Heatmap
     plt.figure(figsize=(6, 4))
     sns.heatmap(report_df.iloc[:3, :-1], annot=True, cmap="YlGnBu")
     plt.title(f"{title} - Precision / Recall / F1")
