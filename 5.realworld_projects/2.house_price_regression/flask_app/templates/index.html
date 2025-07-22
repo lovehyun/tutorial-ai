@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>California Housing 예측</title>
+    <style>
+        body { font-family: sans-serif; margin: 40px; background: #eef2f3; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 2px 2px 12px #aaa; }
+        h2 { text-align: center; }
+        input, button { width: 95%; padding: 10px; margin: 8px 0; }
+        .result { text-align: center; margin-top: 20px; font-size: 1.1em; font-weight: bold; color: #333; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>California Housing 가격 예측기</h2>
+        <form action="/predict" method="post">
+            <input type="number" step="any" name="MedInc" placeholder="중간 소득 (예: 3.87)" required>
+            <input type="number" step="any" name="HouseAge" placeholder="주택 나이 (예: 15)" required>
+            <input type="number" step="any" name="AveRooms" placeholder="평균 방 개수 (예: 5.4)" required>
+            <input type="number" step="any" name="AveBedrms" placeholder="평균 침실 개수 (예: 1.1)" required>
+            <input type="number" step="any" name="Population" placeholder="인구 수 (예: 850)" required>
+            <input type="number" step="any" name="AveOccup" placeholder="평균 거주자 수 (예: 2.6)" required>
+            <input type="number" step="any" name="Latitude" placeholder="위도 (예: 34.25)" required>
+            <input type="number" step="any" name="Longitude" placeholder="경도 (예: -118.3)" required>
+            <button type="submit">예측하기</button>
+        </form>
+        {% if prediction_text %}
+            <div class="result">{{ prediction_text }}</div>
+        {% endif %}
+    </div>
+</body>
+</html>
+
+<!-- 
+| 변수명          | 설명                    | 값 예시 (실제 범위 기반)   |
+| ------------ | --------------------- | ----------------- |
+| `MedInc`     | 중간 소득 (단위: **1만 달러**) | 3.87 → 약 \$38,700 |
+| `HouseAge`   | 주택 나이 (연 단위)          | 15.0              |
+| `AveRooms`   | 평균 방 개수               | 5.4               |
+| `AveBedrms`  | 평균 침실 개수              | 1.1               |
+| `Population` | 해당 지역 인구 수            | 850               |
+| `AveOccup`   | 평균 가구당 거주자 수          | 2.6               |
+| `Latitude`   | 위도                    | 34.25             |
+| `Longitude`  | 경도                    | -118.3            | 
+-->
