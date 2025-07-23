@@ -1,48 +1,28 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
-    <meta charset="utf-8">
-    <title>Iris 예측기</title>
+    <meta charset="UTF-8">
+    <title>Iris 품종 예측</title>
     <style>
         body { font-family: sans-serif; margin: 40px; background: #f5f5f5; }
-        .container { max-width: 400px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 2px 2px 10px #ccc; }
+        .container { max-width: 400px; background: white; padding: 20px; border-radius: 10px; box-shadow: 2px 2px 10px #ccc; }
         h2 { text-align: center; }
-        input, select, button {
-            width: 90%;
-            padding: 10px;
-            margin: 10px 0;
-            font-size: 1em;
-        }
-        .result {
-            text-align: center;
-            margin-top: 20px;
-            font-weight: bold;
-            font-size: 1.2em;
-            color: #0074D9;
-        }
+        input, button { width: 90%; padding: 10px; margin: 10px 0; }
+        .result { text-align: center; margin-top: 20px; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>🌸 Iris 꽃 예측기</h2>
-        <form method="POST">
-            {% for name in feature_names %}
-                <label>{{ name }}</label><br>
-                <input type="number" step="any" name="{{ name }}" required><br>
-            {% endfor %}
-
-            <label>모델 선택</label><br>
-            <select name="model">
-                {% for model in model_names %}
-                    <option value="{{ model }}" {% if model == selected_model %}selected{% endif %}>{{ model }}</option>
-                {% endfor %}
-            </select><br>
-
+        <h2>Iris 품종 예측기</h2>
+        <form action="/predict" method="post">
+            <input type="number" step="any" name="sepal_length" placeholder="Sepal Length (cm)" required>
+            <input type="number" step="any" name="sepal_width" placeholder="Sepal Width (cm)" required>
+            <input type="number" step="any" name="petal_length" placeholder="Petal Length (cm)" required>
+            <input type="number" step="any" name="petal_width" placeholder="Petal Width (cm)" required>
             <button type="submit">예측하기</button>
         </form>
-
-        {% if prediction %}
-            <div class="result">예측 결과: {{ prediction }}</div>
+        {% if prediction_text %}
+            <div class="result">{{ prediction_text }}</div>
         {% endif %}
     </div>
 </body>

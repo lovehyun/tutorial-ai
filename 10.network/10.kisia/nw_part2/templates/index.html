@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>실시간 패킷 모니터링</title>
+</head>
+<body>
+    <h2>최근 5초 내 패킷 로그</h2>
+    <pre id="log" style="font-family:monospace; font-size:14px;"></pre>
+
+    <script>
+        async function fetchLogs() {
+            const res = await fetch('/logs');
+            const data = await res.json();
+
+            const lines = data.map(d => {
+                const time = new Date(d.timestamp * 1000).toLocaleTimeString();
+                const abnormal = d.abnormal ? 'TRUE' : 'false';
+                return `[${time}] ${d.protocol} ${d.sip}:${d.sport} → ${d.dip}:${d.dport} | size=${d.size} | ${d.info} | abnormal: <b>${d.abnormal}</b>`;
+            });
+
+            document.getElementById('log').innerHTML = lines.reverse().join('\n');
+        }
+
+        fetchLogs();
+        setInterval(fetchLogs, 5000);
+    </script>
+</body>
+</html>

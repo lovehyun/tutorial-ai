@@ -67,7 +67,7 @@ def index():
 
         result = iris.target_names[pred]
 
-    return render_template("index3.html",
+    return render_template("index4.html",
                            result=result,
                            model_name=selected_model,
                            img_base64=img_base64,

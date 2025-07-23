@@ -91,7 +91,7 @@ def index():
         pca_base64 = plot_pca_with_point(data, pred)
         result = iris.target_names[pred]
 
-    return render_template("index4.html",
+    return render_template("index5.html",
                            result=result,
                            model_name=selected_model,
                            img_base64=img_base64,

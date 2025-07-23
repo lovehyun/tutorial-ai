@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>실시간 이상 트래픽 탐지</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h2>실시간 트래픽 모니터링</h2>
+    <canvas id="rateChart" width="600" height="200"></canvas>
+    <canvas id="clusterChart" width="600" height="200"></canvas>
+
+    <h3>최근 탐지 결과 (1분 이내)</h3>
+    <div id="result"></div>
+
+    <script>
+        let rateChart, clusterChart;
+
+        async function fetchStatus() {
+            const res = await fetch('/status');
+            const data = await res.json();
+
+            // 1. 최근 탐지 결과 출력
+            const div = document.getElementById('result');
+
+            // 테이블 헤더 정의
+            let html = `
+                <table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse; font-size:12px; font-family:monospace;">
+                    <thead>
+                        <tr style="background-color:#f0f0f0;">
+                            <th>시간</th>
+                            <th>프로토콜</th>
+                            <th>출발지</th>
+                            <th>목적지</th>
+                            <th>크기</th>
+                            <th>정보</th>
+                            <th>클러스터</th>
+                            <th>이상여부</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            // 최근 로그를 최신순으로 역순 정렬
+            data.results.slice().reverse().forEach(d => {
+                const meta = d.meta;
+                const time = new Date(d.timestamp * 1000).toLocaleTimeString();
+                const abnormal = d.abnormal ? 'true' : 'false';
+                const rowColor = d.abnormal ? 'style="color:red;"' : '';
+
+                html += `
+                    <tr ${rowColor}>
+                        <td>${time}</td>
+                        <td>${meta.protocol}</td>
+                        <td>${meta.sip}:${meta.sport}</td>
+                        <td>${meta.dip}:${meta.dport}</td>
+                        <td>${meta.size}</td>
+                        <td>${meta.info || '-'}</td>
+                        <td>${d.cluster}</td>
+                        <td>${abnormal}</td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table>';
+            div.innerHTML = html;
+
+
+            // 2. 시계열 그래프: 최근 60초 기준 1초 단위 채우기
+            const now = Math.floor(Date.now() / 1000);
+            const timeLabels = Array.from({length: 60}, (_, i) => new Date((now - 59 + i) * 1000).toLocaleTimeString());
+            const packetMap = new Map(data.packet_rate.map(p => [p.timestamp, p.count]));
+            const counts = Array.from({length: 60}, (_, i) => {
+                const ts = now - 59 + i;
+                return packetMap.get(ts) || 0;
+            });
+
+            if (!rateChart) {
+                const ctx = document.getElementById('rateChart').getContext('2d');
+                rateChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: timeLabels,
+                        datasets: [{
+                            label: '초당 패킷 수',
+                            data: counts,
+                            borderWidth: 2,
+                            fill: false,
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        animation: false,
+                        scales: {
+                            y: { beginAtZero: true }
+                        }
+                    }
+                });
+            } else {
+                rateChart.data.labels = timeLabels;
+                rateChart.data.datasets[0].data = counts;
+                rateChart.update();
+            }
+
+            // 3. 클러스터별 통계 시각화
+            const labels = Object.keys(data.cluster_stats);
+            const total = labels.map(k => data.cluster_stats[k].count);
+            const abnormal = labels.map(k => data.cluster_stats[k].abnormal);
+
+            if (!clusterChart) {
+                const ctx2 = document.getElementById('clusterChart').getContext('2d');
+                clusterChart = new Chart(ctx2, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            { label: '총 탐지 수', data: total },
+                            { label: '이상 탐지 수', data: abnormal }
+                        ]
+                    },
+                    options: {
+                        scales: {
+                            y: { beginAtZero: true }
+                        }
+                    }
+                });
+            } else {
+                clusterChart.data.labels = labels;
+                clusterChart.data.datasets[0].data = total;
+                clusterChart.data.datasets[1].data = abnormal;
+                clusterChart.update();
+            }
+        }
+
+        setInterval(fetchStatus, 1000);
+    </script>
+</body>
+</html>

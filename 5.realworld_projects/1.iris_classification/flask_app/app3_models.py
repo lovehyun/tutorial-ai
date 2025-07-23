@@ -47,7 +47,7 @@ def index():
         except Exception as e:
             prediction = f"Error: {e}"
 
-    return render_template("index2.html",
+    return render_template("index3.html",
                            feature_names=FEATURE_NAMES,
                            model_names=list(MODEL_FILES.keys()),
                            prediction=prediction,

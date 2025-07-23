@@ -5,6 +5,7 @@ import pandas as pd
 app = Flask(__name__)
 
 # 모델과 스케일러 로드
+# model = joblib.load("models/lr_model.pkl")      # LinearRegression 또는 다른 회귀 모델
 model = joblib.load("models/gb_model.pkl")      # GradientBoosting 또는 다른 회귀 모델
 scaler = joblib.load("models/scaler.pkl")       # StandardScaler
 
