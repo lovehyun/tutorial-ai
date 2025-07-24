@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>네트워크 대시보드</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 10px;
+            font-family: sans-serif;
+        }
+        .charts {
+            display: flex;
+        }
+        .bar {
+            width: 70%;
+        }
+        .pie {
+            width: 30%;
+        }
+        .log-box {
+            width: 100%;
+            max-height: 300px;
+            overflow-y: auto;
+            background: #f4f4f4;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h2>실시간 네트워크 패킷 대시보드</h2>
+    <div class="charts">
+        <div class="bar"><canvas id="barChart"></canvas></div>
+        <div class="pie"><canvas id="pieChart"></canvas></div>
+    </div>
+    <div class="log-box" id="logBox"></div>
+
+    <script>
+        const barChart = new Chart(document.getElementById('barChart'), {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [
+                    {
+                        label: '송신 IP별 개수',
+                        data: [],
+                        backgroundColor: '#36a2eb',
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+            },
+        });
+
+        const pieChart = new Chart(document.getElementById('pieChart'), {
+            type: 'pie',
+            data: {
+                labels: [],
+                datasets: [
+                    {
+                        data: [],
+                        backgroundColor: ['#36a2eb', '#ff6384', '#ffcd56', '#aaa'],
+                    },
+                ],
+            },
+            options: { responsive: true },
+        });
+
+        async function fetchData() {
+            const res = await fetch('/data');
+            const data = await res.json();
+
+            // 로그 출력
+            const logBox = document.getElementById('logBox');
+            logBox.innerHTML = data.logs
+                .map((p) => `[#${p.id}] [${p.time}] ${p.proto} ${p.sip}:${p.sport} → ${p.dip}:${p.dport} :: ${p.summary}`)
+                .join('<br>');
+
+            // 바 차트 (송신 IP별)
+            const sources = data.sources;
+            barChart.data.labels = Object.keys(sources);
+            barChart.data.datasets[0].data = Object.values(sources);
+            barChart.update();
+
+            // 파이 차트 (프로토콜 비율)
+            const protos = data.protocols;
+            pieChart.data.labels = Object.keys(protos);
+            pieChart.data.datasets[0].data = Object.values(protos);
+            pieChart.update();
+        }
+
+        setInterval(fetchData, 1000);
+    </script>
+</body>
+</html>

@@ -1,6 +1,9 @@
 from scapy.all import IP, ICMP, sr1
 
-packet = IP(dst="8.8.8.8") / ICMP()
+# 대상 IP 주소
+target = "8.8.8.8"
+
+packet = IP(dst=target) / ICMP()
 response = sr1(packet, timeout=2)
 # response = sr1(packet, timeout=2, verbose=0)
 

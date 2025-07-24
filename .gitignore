@@ -1,6 +1,7 @@
 # data
 creditcard.csv
 *.csv
+*.pcap
 
 # model
 *.npz
