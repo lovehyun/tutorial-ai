@@ -12,9 +12,15 @@ app = Flask(__name__)
 # 모델 및 스케일러 로드
 model = joblib.load("models/kmeans_model.pkl")
 scaler = joblib.load("models/scaler.pkl")
+features = joblib.load("models/features.pkl")
+abnormal_cluster = joblib.load("models/abnormal_cluster.pkl")
 
-cols = ['method_cnt','method_post','protocol_1_0','status_major','status_404','status_499',
-        'status_cnt','path_same','path_xmlrpc','ua_cnt','has_payload','req_cnt_per_hour']
+print("features =", features)
+print("type =", type(features))
+
+# 하드코딩 보다는 features 를 통해서 불러옴
+# cols = ['method_cnt','method_post','protocol_1_0','status_major','status_404','status_499',
+        # 'status_cnt','path_same','path_xmlrpc','ua_cnt','has_payload','req_cnt_per_hour']
 
 # 최근 결과 저장소
 latest_results = deque(maxlen=500)
@@ -84,11 +90,13 @@ def extract_packet_metadata(pkt):
 def packet_sniffer():
     def process(pkt):
         meta = extract_packet_metadata(pkt)
-        features = extract_features_from_packet(pkt)
-        X = pd.DataFrame([features], columns=cols)
+        features_raw = extract_features_from_packet(pkt)
+        # X = pd.DataFrame([features_raw], columns=cols)
+        X = pd.DataFrame([features_raw], columns=features)
         X_scaled = scaler.transform(X)
         cluster = model.predict(X_scaled)[0]
-        is_abnormal = (cluster == 2)
+        # is_abnormal = (cluster == 2) # 하드코딩 보다는 이전 모델에서 저장하고 불러옴
+        is_abnormal = (cluster == abnormal_cluster)
 
         latest_results.append({
             **meta,

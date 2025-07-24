@@ -22,3 +22,10 @@ print(confusion_matrix(y_test, y_pred))
 
 print("\nClassification Report:")
 print(classification_report(y_test, y_pred))
+
+
+# 모델 저장
+import joblib
+
+joblib.dump(model, "rf_model.pkl")
+print("모델 저장 완료: rf_model.pkl")

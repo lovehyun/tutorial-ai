@@ -12,10 +12,8 @@ app = Flask(__name__)
 # 모델 및 스케일러 로딩
 model = joblib.load("models/kmeans_model.pkl")
 scaler = joblib.load("models/scaler.pkl")
-
-cols = ['method_cnt', 'method_post', 'protocol_1_0', 'status_major', 'status_404',
-        'status_499', 'status_cnt', 'path_same', 'path_xmlrpc', 'ua_cnt',
-        'has_payload', 'req_cnt_per_hour']
+features = joblib.load("models/features.pkl")
+abnormal_cluster = joblib.load("models/abnormal_cluster.pkl")
 
 # 실시간 저장소
 latest_results = deque(maxlen=200)        # 최근 탐지 결과
@@ -99,20 +97,20 @@ def packet_sniffer():
         timestamp = int(time.time())
         packet_count_history.append(timestamp)
 
-        features = extract_features_from_packet(pkt)
+        features_raw = extract_features_from_packet(pkt)
         metadata = extract_packet_metadata(pkt)
 
-        X = pd.DataFrame([features], columns=cols)
+        X = pd.DataFrame([features_raw], columns=features)
         X_scaled = scaler.transform(X)
 
         cluster = model.predict(X_scaled)[0]
-        is_abnormal = (cluster == 2)  # 예시: cluster==2가 이상
+        is_abnormal = (cluster == abnormal_cluster)
 
         latest_results.append({
             'timestamp': timestamp,
             'cluster': int(cluster),
             'abnormal': is_abnormal,
-            'features': features,
+            'features': features_raw,
             'meta': metadata
         })
 
