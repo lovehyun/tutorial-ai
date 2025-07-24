@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>실시간 패킷 예측</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        html,
+        body {
+            margin: 0;
+            height: 100vh;
+        }
+        canvas {
+            width: 100%;
+            height: 33.33vh;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <h2>실시간 패킷 예측 (초 / 분 / 시간)</h2>
+    <canvas id="secondChart"></canvas>
+    <canvas id="minuteChart"></canvas>
+    <canvas id="hourChart"></canvas>
+
+    <script>
+        const chartTemplate = (ctx, label) =>
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        { label: 'Observed', data: [], borderColor: 'blue', fill: false },
+                        { label: 'Forecast', data: [], borderColor: 'red', borderDash: [5, 5], fill: false },
+                        { label: 'Lower Bound', data: [], borderColor: 'pink', fill: '+1', pointRadius: 0 },
+                        { label: 'Upper Bound', data: [], borderColor: 'pink', fill: false, pointRadius: 0 },
+                    ],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRation: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: `패킷 예측 (${label})`,
+                        },
+                        legend: {
+                            display: true,
+                        },
+                    },
+                    scales: {
+                        y: { beginAtZero: true },
+                    },
+                },
+            });
+
+        const charts = {
+            second: chartTemplate(document.getElementById('secondChart'), '초 단위'),
+            minute: chartTemplate(document.getElementById('minuteChart'), '분 단위'),
+            hour: chartTemplate(document.getElementById('hourChart'), '시간 단위'),
+        };
+
+        async function fetchData() {
+            const res = await fetch('/status');
+            const data = await res.json();
+            for (const [label, chart] of Object.entries(charts)) {
+                if (!data[label]) continue;
+                chart.data.labels = data[label].timestamps;
+                chart.data.datasets[0].data = data[label].recent;
+                chart.data.datasets[1].data = data[label].forecast;
+                chart.data.datasets[2].data = data[label].lower;
+                chart.data.datasets[3].data = data[label].upper;
+                chart.update();
+            }
+        }
+
+        setInterval(fetchData, 1000);
+    </script>
+</body>
+</html>
