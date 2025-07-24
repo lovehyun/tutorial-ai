@@ -19,6 +19,14 @@ X_scaled = scaler.fit_transform(df_entity[cols_to_train])
 model = KMeans(n_clusters=4, random_state=42)
 model.fit(X_scaled)
 
+df_entity['cluster_kmeans'] = model.labels_
+cluster_counts = df_entity['cluster_kmeans'].value_counts()
+print(cluster_counts)  # 각 클러스터별 개수 출력
+
+# 예: 가장 적은 샘플 수의 클러스터를 이상으로 간주
+abnormal_cluster = cluster_counts.idxmin()
+joblib.dump(abnormal_cluster, "models/abnormal_cluster.pkl")
+
 # 모델 저장
 joblib.dump(model, "models/kmeans_model.pkl")
 joblib.dump(scaler, "models/scaler.pkl")

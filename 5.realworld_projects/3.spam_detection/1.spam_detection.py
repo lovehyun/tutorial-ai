@@ -26,7 +26,7 @@ X = vectorizer.fit_transform(texts)
 
 # 2. 학습/테스트 분리
 # X_train, X_test, y_train, y_test = train_test_split(X, labels, test_size=0.5)
-X_train, X_test, y_train, y_test = train_test_split(X, labels, test_size=0.5, stratify=labels)
+X_train, X_test, y_train, y_test = train_test_split(X, labels, test_size=0.5, random_state=3, stratify=labels)
 # stratify=labels를 추가하면 train/test 모두에 스팸과 햄이 골고루 들어가도록 조정됩니다.
 
 # 3. 모델 학습 (Naive Bayes)
