@@ -2,6 +2,7 @@
 creditcard.csv
 *.csv
 *.pcap
+*.mmdb
 
 # model
 *.npz
