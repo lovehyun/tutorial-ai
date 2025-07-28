@@ -1,19 +1,18 @@
 # 5_predict_live.py
-from scapy.all import sniff
+from scapy.all import sniff, IP
 import joblib
 import pandas as pd
-import numpy as np
 
 # 모델 로드
 model = joblib.load("rf_model.pkl")
 features = ['duration', 'packet_size', 'src_bytes', 'dst_bytes']  # CSV 기준
 
 def extract_features(pkt):
-    if pkt.haslayer("IP"):
+    if pkt.haslayer(IP):
         pkt_len = len(pkt)
         src_bytes = len(pkt.payload)
         dst_bytes = pkt_len - src_bytes
-        ttl = pkt["IP"].ttl if hasattr(pkt["IP"], 'ttl') else 64
+        ttl = pkt[IP].ttl if hasattr(pkt[IP], 'ttl') else 64
 
         # duration은 아직 구현 안됨 → 임의 고정값
         duration = 1
@@ -30,7 +29,7 @@ def process_packet(pkt):
         y_pred = model.predict(X)[0]
         y_prob = model.predict_proba(X)[0][1]  # class=1 (이상)의 확률
         
-        print(f"[예측 결과] → {'이상 트래픽' if y_pred == 1 else '정상 트래픽'} | {sample} | 확률: {y_prob:.3f}")
+        print(f"[예측 결과] → {'이상 트래픽' if y_pred == 1 else '정상 트래픽'} | 확률: {y_prob:.3f} | {sample} | {pkt.summary()}")
 
 
 print("실시간 패킷 감지 중... (Ctrl+C로 종료)")

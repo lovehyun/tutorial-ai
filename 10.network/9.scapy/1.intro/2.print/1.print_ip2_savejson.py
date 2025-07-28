@@ -17,4 +17,8 @@ sniff(prn=extract_features, count=10)
 
 # 결과 저장
 with open("packets.json", "w") as f:
-    json.dump(results, f, indent=2)
+    # json.dump(results, f, indent=2)
+
+    # 한줄에 하나씩 (JSONL 형식)
+    for pkt_data in results:
+        f.write(json.dumps(pkt_data) + "\n")

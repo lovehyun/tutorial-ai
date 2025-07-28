@@ -1,4 +1,5 @@
-from scapy.all import *
+# from scapy.all import *
+from scapy.all import ARP, Ether, srp
 
 target_ip = "192.168.0.1"
 

@@ -1,7 +1,10 @@
+# sudo setcap cap_net_raw,cap_net_admin+eip /usr/bin/python3.12
+
 from scapy.all import IP, TCP, sr1
 
 target = "scanme.nmap.org"
 ports = [22, 80, 443]
+# ports = range(20, 31) # 20~30까지
 
 for port in ports:
     pkt = IP(dst=target) / TCP(dport=port, flags='S')

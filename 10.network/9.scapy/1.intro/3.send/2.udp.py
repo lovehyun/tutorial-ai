@@ -8,3 +8,9 @@ port = 53
 udp = IP(dst=target)/UDP(dport=port)/Raw(load="Hello via UDP")
 send(udp)
 print("UDP 패킷 전송 완료")
+
+
+# nc -u -l 8000
+# 기본적으로 한 번 수신하고 종료됨 (UDP라 계속 열고 있음)
+
+# while true; do nc -u -l 8000; done
